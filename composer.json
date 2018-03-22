@@ -5,7 +5,7 @@
         "kount",
         "signifyd"
     ],
-    "type": "library",
+    "type": "metapackage",
     "license": "MIT",
     "authors": [
         {
