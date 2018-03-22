@@ -13,7 +13,9 @@ Here is a basic example
 <?php
 
 /** @var \Omnifraud\Contracts\ServiceInterface $fraudService */
-$fraudService = new Omnifraud\Example\ExampleService();
+$fraudService = new Omnifraud\Example\ExampleService([
+    'api_key' => 'XXX', // Service specific config
+]);
 
 $request = new Omnifraud\Request\Request();
 $request->getPurchase()->setId('1');
@@ -48,4 +50,16 @@ foreach ($response->getMessages() as $message) {
 }
 
 ```
-Note: See [MakesTestRequest@makeTestRequest()](https://github.com/lxrco/omnifraud-common/blob/master/src/Testing/MakesTestRequests.php) for a full example of a request, each driver might require different fields but they can all handle a full request.
+Note: See [MakesTestRequest@makeTestRequest()](https://github.com/lxrco/omnifraud-common/blob/master/src/Testing/MakesTestRequests.php) for a full example of a request, each service might require different fields but they can all handle a full request.
+
+
+## Fraud services
+
+All drivers must implement [ServiceInterface](https://github.com/lxrco/omnifraud-common/blob/master/src/Contracts/ServiceInterface.php).
+
+The following services are supported:
+
+Service | Composer Package | Maintainer
+--- | --- | ---
+[Kount](https://github.com/lxrco/omnifraud-kount) | omnifraud/kount | [LXRandCo](https://github.com/lxrco)
+[Signifyd](https://github.com/lxrco/omnifraud-kount) | omnifraud/signifyd | [LXRandCo](https://github.com/lxrco)
