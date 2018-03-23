@@ -179,8 +179,7 @@ Note: The `trackingCode` needs to be called with a page constent,
 either `ServiceInterface::PAGE_ALL` or `ServiceInterface::PAGE_CHECKOUT` as some services require
 different code for the checkout page.
 
-```html
-<script type="text/javascript">
+```javascript
 // Example function to generate session IDs on the frontend and store it in a cookie,
 // the ID could also come from the backend.
 function getSessionId() {
@@ -207,5 +206,4 @@ for(var i in trackingCodes) {
     if(!trackingCodes.hasOwnProperty(i)) continue;
     trackingCodes[i](getSessionId());
 }
-</script> 
 ```
