@@ -196,10 +196,11 @@ function getSessionId() {
     return sessionId;
 }
 
+// Must be defined before adding the trackingCodes
 var trackingCodes = [];
 
 // Inject one or more service's tracking code
-<?= $fraudService->trackingCode(ServiceInterface::PAGE_ALL) ?>
+<?= $fraudService->trackingCode(ServiceInterface::PAGE_ALL); ?>
 
 // Call the functions with the code
 for(var i in trackingCodes) {
