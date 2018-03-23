@@ -17,6 +17,7 @@ $fraudService = new Omnifraud\Example\ExampleService([
     'api_key' => 'XXX', // Service specific config
 ]);
 
+// Build request, with data from the current sale
 $request = new Omnifraud\Request\Request();
 $request->getPurchase()->setId('1');
 $request->getPurchase()->setTotal(25100);
@@ -25,6 +26,7 @@ $request->getPurchase()->setCurrencyCode('CAD');
 $request->getAccount()->setEmail('jane@example.com');
 //...
 
+// Send the request to the service
 $response = $fraudService->validateRequest($request);
 
 // Does it need to be updated later?
