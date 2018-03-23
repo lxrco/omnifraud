@@ -169,4 +169,40 @@ $request->setBillingAddress($billingAddress);
 
 ## Frontend code
 
-TODO: Write example on how to use the frontend code
+Currently implemented services all require a session id to be passed to the frontend code,
+this is done by calling the function defined by the service.
+
+Note: The `trackingCode` needs to be called with a page constent,
+either `ServiceInterface::PAGE_ALL` or `ServiceInterface::PAGE_CHECKOUT` as some services require
+different code for the checkout page.
+
+```html
+<script type="text/javascript">
+// Example function to generate session IDs on the frontend and store it in a cookie,
+// the ID could also come from the backend.
+function getSessionId() {
+    var sessionId = Cookies.get('sessionId');
+    if(!sessionId) {
+        sessionId = '';
+        var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        
+        for (var i = 0; i < 32; i++) {
+            sessionId += possible.charAt(Math.floor(Math.random() * possible.length));
+        }
+        Cookies.set('sessionId', sessionId);
+    }
+    return sessionId;
+}
+
+var trackingCodes = [];
+
+// Inject one or more service's tracking code
+<?= $fraudService->trackingCode(ServiceInterface::PAGE_ALL) ?>
+
+// Call the functions with the code
+for(var i in trackingCodes) {
+    if(!trackingCodes.hasOwnProperty(i)) continue;
+    trackingCodes[i](getSessionId());
+}
+</script> 
+```
