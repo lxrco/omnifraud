@@ -64,7 +64,7 @@ The following services are supported:
 Service | Composer Package | Maintainer
 --- | --- | ---
 [Kount](https://github.com/lxrco/omnifraud-kount) | omnifraud/kount | [LXRandCo](https://github.com/lxrco)
-[Signifyd](https://github.com/lxrco/omnifraud-kount) | omnifraud/signifyd | [LXRandCo](https://github.com/lxrco)
+[Signifyd](https://github.com/lxrco/omnifraud-signifyd) | omnifraud/signifyd | [LXRandCo](https://github.com/lxrco)
 
 
 ## Service methods
@@ -101,6 +101,7 @@ use Omnifraud\Request\Request;
 
 $request = new Request();
 
+$purchase = new Purchase();
 $purchase->setId('1'); // Unique identifier for this sale
 $purchase->setCreatedAt(new \DateTime('2017-09-02 12:12:12')); // Date the order was created at
 $purchase->setCurrencyCode('CAD'); // ISO 4217 currency code
