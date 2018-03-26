@@ -15,7 +15,9 @@
     ],
     "require": {
         "php": "^7.1",
-        "omnifraud/common": "^0.1"
+        "omnifraud/common": "^0.1",
+        "omnifraud/signifyd": "~0.1",
+        "omnifraud/kount": "~0.1"
     },
     "minimum-stability": "dev",
     "prefer-stable": true

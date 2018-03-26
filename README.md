@@ -54,6 +54,22 @@ foreach ($response->getMessages() as $message) {
 ```
 Note: See [MakesTestRequest@makeTestRequest()](https://github.com/lxrco/omnifraud-common/blob/master/src/Testing/MakesTestRequests.php) for a full example of a request, each service might require different fields but they can all handle a full request.
 
+## Installation
+
+Usually all you need to do is installing the service you need, for example:
+```bash
+composer require omnifraud/signifyd
+```
+
+Each package already requires [`omnifraud/common`](https://github.com/lxrco/omnifraud-common),
+so you don't need to require it.
+
+You can also install ALL supported services:
+
+```bash
+composer require omnifraud/omnifraud
+```
+
 
 ## Fraud services
 
