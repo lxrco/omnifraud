@@ -29,7 +29,7 @@ $request->getAccount()->setEmail('jane@example.com');
 $response = $fraudService->validateRequest($request);
 
 // Does it need to be updated later?
-if ($response->isAsync()) {
+if ($response->isPending()) {
     $this->queueFraudUpdate($response->getRequestUid());
     return;
 }
@@ -39,7 +39,7 @@ if ($response->isGuaranteed()) {
     //...
 }
 
-if ($response->getPercentScore() < 10.0) {
+if ($response->getScore() < 10.0) {
     // This looks really suspicious, maybe auto refuse?
     //...
 }
