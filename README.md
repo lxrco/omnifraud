@@ -1,8 +1,8 @@
 <img src="icon.png" align="right">
 
-# Omnifraud
+# Omnifraud · [![Travis Build Status](https://img.shields.io/travis/lxrco/omnifraud-common.svg)](https://travis-ci.org/lxrco/omnifraud-common) [![Packagist Version](https://img.shields.io/packagist/v/omnifraud/common.svg)](https://packagist.org/packages/omnifraud/common) [![Packagist Downloads](https://img.shields.io/packagist/dt/omnifraud/common.svg)](https://packagist.org/packages/omnifraud/common) [![License Version](https://img.shields.io/packagist/l/omnifraud/common.svg)](https://github.com/lxrco/omnifraud-common/blob/master/LICENSE)
 
-> An easy to use, consistent fraud prevention processing library for **PHP 7.1+**
+> An easy to use, consistent fraud prevention library for **PHP 7.1+**
 
 Inspired by [Omnipay](https://github.com/thephpleague/omnipay) and to satisfy our own needs, Omnifraud is an ecommerce fraud prevention library for PHP. The project aims to provide a clear and consistent API for interacting with different fraud prevention, risk assessment, and liability shifting services.
 
