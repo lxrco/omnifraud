@@ -40,20 +40,38 @@ We created Omnifraud to satiate our own needs. The benefits of using the Omnifra
 * Clean separation. Easily swap providers without touching a single line of checkout code.
 * Documentation in popular risk assessment services isn't always clear. Put in your API key and go.
 
-## TL;DR
+## Installation
 
-Here is a basic example
+Usually all you'll need to do is install the service you need. For example:
+
+```bash
+composer require omnifraud/signifyd
+```
+
+Each package already requires [`omnifraud/common`](https://github.com/lxrco/omnifraud-common),
+so you don't need to require it.
+
+To install **ALL** supported services:
+
+```bash
+composer require omnifraud/omnifraud
+```
+
+## Basic Example
 
 ```php
 <?php
 
+use Omnifraud\Omnifraud;
+
 /** @var \Omnifraud\Contracts\ServiceInterface $fraudService */
-$fraudService = new Omnifraud\Example\ExampleService([
-    'api_key' => 'XXX', // Service specific config
+$fraudService = Omnifraud::create('Signifyd', [
+    'api_key' => 'XXX',
 ]);
 
 // Build request, with data from the current sale
 $request = new Omnifraud\Request\Request();
+
 $request->getPurchase()->setId('1');
 $request->getPurchase()->setTotal(25100);
 $request->getPurchase()->setCurrencyCode('CAD');
@@ -66,45 +84,21 @@ $response = $fraudService->validateRequest($request);
 
 // Does it need to be updated later?
 if ($response->isPending()) {
+    // Queue for later update
     $this->queueFraudUpdate($response->getRequestUid());
-    return;
 }
 
 if ($response->isGuaranteed()) {
-    // This looks super safe, auto approve it maybe?
-    //...
+    // The order is guaranteed by our fraud service
+    // ...
 }
 
 if ($response->getScore() < 10.0) {
-    // This looks really suspicious, maybe auto refuse?
-    //...
+    // That's a pretty bad score. Let's bail!
+    // ...
 }
-
-foreach ($response->getMessages() as $message) {
-    if ($message->getType() !== \Omnifraud\Contracts\MessageInterface::TYPE_INFO) {
-        $this->saveOrderMessage($message->getType(), $message->getMessage());
-    }
-}
-
 ```
 Note: See [MakesTestRequest@makeTestRequest()](https://github.com/lxrco/omnifraud-common/blob/master/src/Testing/MakesTestRequests.php) for a full example of a request, each service might require different fields but they can all handle a full request.
-
-## Installation
-
-Usually all you need to do is installing the service you need, for example:
-```bash
-composer require omnifraud/signifyd
-```
-
-Each package already requires [`omnifraud/common`](https://github.com/lxrco/omnifraud-common),
-so you don't need to require it.
-
-You can also install ALL supported services:
-
-```bash
-composer require omnifraud/omnifraud
-```
-
 
 ## Fraud services
 
