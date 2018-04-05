@@ -2,9 +2,23 @@
 
 # Omnifraud · [![Travis Build Status](https://img.shields.io/travis/lxrco/omnifraud-common.svg)](https://travis-ci.org/lxrco/omnifraud-common) [![Packagist Version](https://img.shields.io/packagist/v/omnifraud/common.svg)](https://packagist.org/packages/omnifraud/common) [![Packagist Downloads](https://img.shields.io/packagist/dt/omnifraud/common.svg)](https://packagist.org/packages/omnifraud/common) [![License Version](https://img.shields.io/packagist/l/omnifraud/common.svg)](https://github.com/lxrco/omnifraud-common/blob/master/LICENSE)
 
-> An easy to use, consistent fraud prevention library for **PHP 7.1+**
+> An easy to use, consistent fraud prevention library for **PHP 7.1+**. Inspired by [Omnipay](https://github.com/thephpleague/omnipay).
 
-Inspired by [Omnipay](https://github.com/thephpleague/omnipay) and to satisfy our own needs, Omnifraud is an ecommerce fraud prevention library for PHP. The project aims to provide a clear and consistent API for interacting with different fraud prevention, risk assessment, and liability shifting services.
+Omnifraud is an ecommerce fraud prevention library for PHP. The project aims to provide a clear and consistent API for interacting with different fraud prevention, risk assessment, and liability shifting services.
+
+## Motivation
+
+There are a lot of risk assessment services out there and, although some details differ, the flow is almost always the same.
+
+* Generate a random session ID
+* Insert JavaScript tracking code into front end with aforementioned session ID
+* On checkout, send a request to risk assessment service with session ID and order information
+
+We created Omnifraud to satiate our own needs. The benefits of using the Omnifraud library are:
+
+* Learn one interface, use throughout projects with different providers.
+* Clean separation. Easily swap providers without touching a single line of checkout code.
+* Documentation in popular risk assessment services isn't always clear. Put in your API key and go.
 
 ## TL;DR
 
