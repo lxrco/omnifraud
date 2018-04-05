@@ -6,6 +6,26 @@
 
 Omnifraud is an ecommerce fraud prevention library for PHP. The project aims to provide a clear and consistent API for interacting with different fraud prevention, risk assessment, and liability shifting services.
 
+## Table of Contents
+
+- [Motivation](#motivation)
+- [Installation](#installation)
+- [Basic Example](#basic-example)
+- [Fraud Services / Drivers](#fraud-services-drivers)
+- [Usage](#usage)
+    - [Instantiation](#instantiation)
+    - [Service Methods](#service-methods)
+    - [Front-end Implementation](#front-end-implementation)
+    - [Creating Requests](#creating-requests)
+        - [Account](#account)
+        - [Address](#address)
+        - [Payment](#payment)
+        - [Product](#product)
+        - [Purchase](#purchase)
+        - [Session](#session)
+    - [Responses](#responses)
+        - [Asynchronous Responses](#asynchronous-responses)
+
 ## Motivation
 
 There are a lot of risk assessment services out there and, although some details differ, the flow is almost always the same.
