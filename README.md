@@ -23,8 +23,10 @@ Omnifraud is an ecommerce fraud prevention library for PHP. The project aims to 
         - [Product](#product)
         - [Purchase](#purchase)
         - [Session](#session)
+        - [Static Creation](#static-creation)
     - [Responses](#responses)
         - [Asynchronous Responses](#asynchronous-responses)
+- [Contributing](#contributing)
 
 ## Motivation
 
@@ -98,11 +100,11 @@ if ($response->getScore() < 10.0) {
     // ...
 }
 ```
-Note: See [MakesTestRequest@makeTestRequest()](https://github.com/lxrco/omnifraud-common/blob/master/src/Testing/MakesTestRequests.php) for a full example of a request, each service might require different fields but they can all handle a full request.
+> *Note: See [MakesTestRequest@makeTestRequest()](https://github.com/lxrco/omnifraud-common/blob/master/src/Testing/MakesTestRequests.php) for a full example of a request, each service might require only a few fields but they can all handle a full request.*
 
-## Fraud services
+## Fraud Services / Drivers
 
-All drivers must implement [ServiceInterface](https://github.com/lxrco/omnifraud-common/blob/master/src/Contracts/ServiceInterface.php).
+All drivers implement [ServiceInterface](https://github.com/lxrco/omnifraud-common/blob/master/src/Contracts/ServiceInterface.php).
 
 The following services are officially supported right now:
 
@@ -111,6 +113,41 @@ Service | Composer Package | Maintainer
 [Kount](https://github.com/lxrco/omnifraud-kount) | omnifraud/kount | [LXRandCo](https://github.com/lxrco)
 [Signifyd](https://github.com/lxrco/omnifraud-signifyd) | omnifraud/signifyd | [LXRandCo](https://github.com/lxrco)
 
+> *Note: Interested in contributing your own implementation? We'd love to include it! Scroll down to [Contributing](#contributing) for information.*
+
+## Usage
+
+### Instantiation
+
+### Services Methods
+
+### Front-end Implementation
+
+### Creating Requests
+
+#### Account
+
+#### Address
+
+#### Payment
+
+#### Product
+
+#### Purchase
+
+#### Session
+
+#### Static Creation
+
+**TODO**: Request::create([]) or new Request([]);
+
+### Responses
+
+#### Asynchronous Responses
+
+## Contributing
+
+---
 
 ## Service methods
 
