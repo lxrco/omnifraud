@@ -1,8 +1,10 @@
+<img src="icon.png" align="right">
+
 # Omnifraud
 
-**An easy to use, consistent fraud prevention processing library for PHP 7.1+**
+> An easy to use, consistent fraud prevention processing library for **PHP 7.1+**
 
-Inspired by [Omnipay](https://github.com/thephpleague/omnipay), Omnifraud is an fraud prevention library for PHP. It aims at providing a clear and consistent API for interacting with different fraud prevention service.
+Inspired by [Omnipay](https://github.com/thephpleague/omnipay) and to satisfy our own needs, Omnifraud is an ecommerce fraud prevention library for PHP. The project aims to provide a clear and consistent API for interacting with different fraud prevention, risk assessment, and liability shifting services.
 
 ## TL;DR
 
@@ -86,7 +88,7 @@ Service | Composer Package | Maintainer
 
 * `trackingCode` - get the frontend code use to track users pre-purchase
 * `validateRequest` - submit a fraud review request, typically after an order passed payment validation
-* `updateRequest` - update a fraud review to get the updated information 
+* `updateRequest` - update a fraud review to get the updated information
 * `getRequestExternalLink` - get a link to view the fraud review in a browser
 * `logRefusedRequest` - log a refused request with the fraud prevention service
 * `cancelRequest` - cancel a previous fraud review request
@@ -202,7 +204,7 @@ function getSessionId() {
     if(!sessionId) {
         sessionId = '';
         var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        
+
         for (var i = 0; i < 32; i++) {
             sessionId += possible.charAt(Math.floor(Math.random() * possible.length));
         }
