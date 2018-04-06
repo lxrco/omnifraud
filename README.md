@@ -141,6 +141,38 @@ In order of implementation, this translates into:
 
 ### Instantiation
 
+Instantiation of a driver is incredibly straightforward.
+
+You can create them yourself, passing all configs necessary as the first and only constructor argument.
+
+```php
+<?php
+
+use Omnifraud\Kount\KountService;
+
+/** @var \Omnifraud\Contracts\ServiceInterface $fraudService */
+$fraudService = new KountService([
+    'apiKey' => 'XXX',
+    'merchantId' => '123456',
+]);
+```
+
+Or, use the static `create()` method offered by `Omnifraud\Omnifraud`. The first parameter is the **alias** of the driver (detailed in the [table above](#fraud-services-drivers)), and the second is the same configuration you would normally supply.
+
+```php
+<?php
+
+use Omnifraud\Omnifraud;
+
+/** @var \Omnifraud\Contracts\ServiceInterface $fraudService */
+$fraudService = Omnifraud::create('Kount', [
+    'apiKey' => 'XXX',
+    'merchantId' => '123456',
+]);
+```
+
+As every driver is an implementation of `Omnifraud\Contracts\ServiceInterface`, you should be careful to ensure that you typehint this contract instead of any concrete implementations. Doing anything else would defeat the purpose of this library.
+
 ### Front-end Implementation
 
 ### Services Methods
