@@ -12,6 +12,7 @@ Omnifraud is an ecommerce fraud prevention library for PHP. The project aims to 
 - [Installation](#installation)
 - [Basic Example](#basic-example)
 - [Fraud Services / Drivers](#fraud-services-drivers)
+    - [The `Null` Driver](#the-null-driver)
 - [Usage](#usage)
     - [Instantiation](#instantiation)
     - [Service Methods](#service-methods)
@@ -108,12 +109,17 @@ All drivers implement [ServiceInterface](https://github.com/lxrco/omnifraud-comm
 
 The following services are officially supported right now:
 
-Service | Composer Package | Maintainer
---- | --- | ---
-[Kount](https://github.com/lxrco/omnifraud-kount) | omnifraud/kount | [LXRandCo](https://github.com/lxrco)
-[Signifyd](https://github.com/lxrco/omnifraud-signifyd) | omnifraud/signifyd | [LXRandCo](https://github.com/lxrco)
+Service | Composer Package | Alias | Maintainer
+--- | --- | --- | ---
+[Kount](https://github.com/lxrco/omnifraud-kount) | omnifraud/kount | Kount | [LXRandCo](https://github.com/lxrco)
+[Signifyd](https://github.com/lxrco/omnifraud-signifyd) | omnifraud/signifyd | Signifyd | [LXRandCo](https://github.com/lxrco)
+[Null](https://github.com/lxrco/omnifraud-common) | omnifraud/common | Null | [LXRandCo](https://github.com/lxrco)
 
 > *Note: Interested in contributing your own implementation? We'd love to include it! Scroll down to [Contributing](#contributing) for information.*
+
+### The `Null` Driver
+
+The `Null` driver does nothing. What else were you expecting?
 
 ## Usage
 
