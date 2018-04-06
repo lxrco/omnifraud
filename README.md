@@ -117,11 +117,27 @@ Service | Composer Package | Maintainer
 
 ## Usage
 
+The lifecycle of the fraud request looks like this:
+
+1. User visits www.example.com
+2. User is assigned a random session ID or reuses existing session ID (via local storage, cookies, etc.)
+3. User attempts checkout with payment
+4. Both failed and successful payments are reported to fraud service
+5. Once checkout succeeds, a score is given to the fraud request (either synchronously or asynchronously) and is saved alongside the order
+
+In order of implementation, this translates into:
+
+1. Instantiation of a driver
+2. Front-end JavaScript implementation
+3. Creation of a fraud "request"
+4. On checkout, recording *order*, *session*, *account*, and *payment* info in the request
+5. Storing the response and fraud score in the database, or queuing for later retrieval if asynchronous
+
 ### Instantiation
 
-### Services Methods
-
 ### Front-end Implementation
+
+### Services Methods
 
 ### Creating Requests
 
