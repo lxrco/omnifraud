@@ -101,7 +101,7 @@ if ($response->getScore() < 10.0) {
     // ...
 }
 ```
-> *Note: See [MakesTestRequest@makeTestRequest()](https://github.com/lxrco/omnifraud-common/blob/master/src/Testing/MakesTestRequests.php) for a full example of a request, each service might require only a few fields but they can all handle a full request.*
+> *Note: See [MakesTestRequest@makeTestRequest()](https://github.com/lxrco/omnifraud-common/blob/master/src/Testing/MakesTestRequests.php) for a full example of a request. Services may differ in which fields are optional and which are required, but every service can handle a completely full request.*
 
 ## Fraud Services / Drivers
 
