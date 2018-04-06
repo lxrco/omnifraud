@@ -175,6 +175,48 @@ As every driver is an implementation of `Omnifraud\Contracts\ServiceInterface`, 
 
 ### Front-end Implementation
 
+Services expose a `trackingCode(string $pageType)` method which returns a stringified JavaScript snippet. The only parameter it takes is a constant to specify the type of page we're inserting the snippet into. Be sure to pass the appropriate constant as some services will differentiate between the two types of pages. It can be one of these two values:
+
+* `ServiceInterface::PAGE_ALL`
+* `ServiceInterface::PAGE_CHECKOUT`
+
+To help clarify how this works, let's take a peak at the `SignifydService`. The `trackingCode()` method will return the following JavaScript snippet:
+
+```javascript
+trackingCodes.push(function (sid) {
+    var script = document.createElement('script');
+    script.setAttribute('src', 'https://cdn-scripts.signifyd.com/api/script-tag.js');
+    script.setAttribute('data-order-session-id', sid);
+    script.setAttribute('id', 'sig-api');
+
+    document.body.appendChild(script);
+});
+```
+
+You'll notice that this snippet expects there to be a `trackingCodes` array available in the current scope which it adds an anonymous function into.
+
+When you have a session ID and you're ready to start the tracker, you would then simply iterate the array and execute every function within while passing your session ID as a parameter.
+
+```javascript
+let trackingCodes = [];
+
+{{ $fraudService->trackingCode(ServiceInterface::PAGE_ALL); }}
+
+trackingCodes.forEach(cb => cb({{ Cookie::get('sessionId') }}));
+```
+
+The reasoning for this design decision is that sometimes you will want to run multiple risk assessment services on a single customer while reusing the same session ID. For example, it would be as simple as this:
+
+```javascript
+let trackingCodes = [];
+
+@foreach ($fraudServices as $fraudService)
+    {{ $fraudService->trackingCode(ServiceInterface::PAGE_ALL); }}
+@endforeach
+
+trackingCodes.forEach(cb => cb({{ Cookie::get('sessionId') }}));
+```
+
 ### Services Methods
 
 ### Creating Requests
