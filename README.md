@@ -175,6 +175,8 @@ As every driver is an implementation of `Omnifraud\Contracts\ServiceInterface`, 
 
 ### Front-end Implementation
 
+TODO: CHANGE THIS
+
 Services expose a `trackingCode(string $pageType)` method which returns a stringified JavaScript snippet. The only parameter it takes is a constant to specify the type of page we're inserting the snippet into. Be sure to pass the appropriate constant as some services will differentiate between the two types of pages. It can be one of these two values:
 
 * `ServiceInterface::PAGE_ALL`
