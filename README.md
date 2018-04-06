@@ -11,7 +11,7 @@ Omnifraud is an ecommerce fraud prevention library for PHP. The project aims to 
 - [Motivation](#motivation)
 - [Installation](#installation)
 - [Basic Example](#basic-example)
-- [Fraud Services / Drivers](#fraud-services-drivers)
+- [Fraud Services / Drivers](#fraud-services--drivers)
     - [The `Null` Driver](#the-null-driver)
 - [Usage](#usage)
     - [Instantiation](#instantiation)
@@ -157,7 +157,7 @@ $fraudService = new KountService([
 ]);
 ```
 
-Or, use the static `create()` method offered by `Omnifraud\Omnifraud`. The first parameter is the **alias** of the driver (detailed in the [table above](#fraud-services-drivers)), and the second is the same configuration you would normally supply.
+Or, use the static `create()` method offered by `Omnifraud\Omnifraud`. The first parameter is the **alias** of the driver (detailed in the [table above](#fraud-services--drivers)), and the second is the same configuration array you would normally supply.
 
 ```php
 <?php
