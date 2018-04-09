@@ -175,49 +175,27 @@ As every driver is an implementation of `Omnifraud\Contracts\ServiceInterface`, 
 
 ### Front-end Implementation
 
-TODO: CHANGE THIS
+All services expose a `trackingCode(string $pageType, string $sessionId)` method which returns a stringified snippet of JavaScript. You can call this method to insert the code necessary to instrument the front-end tracking of your fraud service. The two required parameters are a constant to specify the type of page we're inserting the snippet into, and the clients [session ID](#the-session-id).
 
-Services expose a `trackingCode(string $pageType)` method which returns a stringified JavaScript snippet. The only parameter it takes is a constant to specify the type of page we're inserting the snippet into. Be sure to pass the appropriate constant as some services will differentiate between the two types of pages. It can be one of these two values:
+Be sure to pass the appropriate constant as some services will differentiate between the two types of pages. It can be one of these two values:
 
 * `ServiceInterface::PAGE_ALL`
 * `ServiceInterface::PAGE_CHECKOUT`
 
-To help clarify how this works, let's take a peak at the `SignifydService`. The `trackingCode()` method will return the following JavaScript snippet:
+Quite simply, the return string is an IIFE including the session ID. To help clarify how this works let's take a peak at the `SignifydService`. Its `trackingCode()` method will return the following JavaScript snippet:
 
 ```javascript
-trackingCodes.push(function (sid) {
+(function() {
     var script = document.createElement('script');
     script.setAttribute('src', 'https://cdn-scripts.signifyd.com/api/script-tag.js');
-    script.setAttribute('data-order-session-id', sid);
+    script.setAttribute('data-order-session-id', {{ $sessionId }});
     script.setAttribute('id', 'sig-api');
 
     document.body.appendChild(script);
-});
+})();
 ```
 
-You'll notice that this snippet expects there to be a `trackingCodes` array available in the current scope which it adds an anonymous function into.
-
-When you have a session ID and you're ready to start the tracker, you would then simply iterate the array and execute every function within while passing your session ID as a parameter.
-
-```javascript
-let trackingCodes = [];
-
-{{ $fraudService->trackingCode(ServiceInterface::PAGE_ALL); }}
-
-trackingCodes.forEach(cb => cb({{ Cookie::get('sessionId') }}));
-```
-
-The reasoning for this design decision is that sometimes you will want to run multiple risk assessment services on a single customer while reusing the same session ID. For example, it would be as simple as this:
-
-```javascript
-let trackingCodes = [];
-
-@foreach ($fraudServices as $fraudService)
-    {{ $fraudService->trackingCode(ServiceInterface::PAGE_ALL); }}
-@endforeach
-
-trackingCodes.forEach(cb => cb({{ Cookie::get('sessionId') }}));
-```
+By default, anything you pass as `$sessionId` will be quoted and escaped (via `json_encode`). If you wish to pass raw JS (i.e. a variable name, global function, etc.), take advantage of the third, optional `bool $quote = true` parameter of `trackingCode`.
 
 ### Services Methods
 
