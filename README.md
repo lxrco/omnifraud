@@ -14,6 +14,7 @@ Omnifraud is an ecommerce fraud prevention library for PHP. The project aims to 
 - [Fraud Services / Drivers](#fraud-services--drivers)
     - [The `Null` Driver](#the-null-driver)
 - [Usage](#usage)
+    - [The Session ID](#the-session-id)
     - [Instantiation](#instantiation)
     - [Service Methods](#service-methods)
     - [Front-end Implementation](#front-end-implementation)
@@ -138,6 +139,16 @@ In order of implementation, this translates into:
 3. Creation of a fraud "request"
 4. On checkout, recording *order*, *session*, *account*, and *payment* info in the request
 5. Storing the response and fraud score in the database, or queuing for later retrieval if asynchronous
+
+### The Session ID
+
+It's entirely up to you to generate a session ID and re-use the same one throughout the aforementioned fraud request lifecycle. Most services have no opinion on what it looks like, but to be safe accross most vendors you should ensure it:
+
+* is alphanumeric
+* is of reasonable length (more than 255 might be overkill)
+* has some uniqueness properties (tip: don't do things like `crc32(time())`)
+
+Once you have your random session ID, toss it into a cookie (or custom header, however you want to communicate it) and use it for both the front-end tracker and the back-end fraud requests.
 
 ### Instantiation
 
