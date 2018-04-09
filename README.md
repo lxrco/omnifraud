@@ -210,6 +210,17 @@ By default, anything you pass as `$sessionId` will be quoted and escaped (via `j
 
 ### Services Methods
 
+The interface is quite self-explanatory and you are encouraged to familiarize yourself with it by looking at [ServiceInterface.php](https://github.com/lxrco/omnifraud-common/blob/master/src/Contracts/ServiceInterface.php). All methods are typehinted in both their arguments and returns.
+
+In order to communicate with all services in a consistent way, all implementations accept a [Request Object](https://github.com/lxrco/omnifraud-common/blob/master/src/Request/Request.php) throughout. The methods exposed by all services are:
+
+* `public function validateRequest(Request $request): ResponseInterface;`
+* `public function updateRequest(Request $request): ResponseInterface;`
+* `public function cancelRequest(Request $request): void;`
+* `public function logRefusedPayment(Request $request): void;`
+* `public function getRequestExternalLink(string $requestUid): ?string;`
+* `public function trackingCode(string $pageType, string $sessionId, bool $quote = true): string;`
+
 ### Creating Requests
 
 #### Account
