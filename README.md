@@ -19,12 +19,6 @@ Omnifraud is an ecommerce fraud prevention library for PHP. The project aims to 
     - [Service Methods](#service-methods)
     - [Front-end Implementation](#front-end-implementation)
     - [Creating Requests](#creating-requests)
-        - [Account](#account)
-        - [Address](#address)
-        - [Payment](#payment)
-        - [Product](#product)
-        - [Purchase](#purchase)
-        - [Session](#session)
         - [Static Creation](#static-creation)
     - [Responses](#responses)
         - [Asynchronous Responses](#asynchronous-responses)
@@ -212,7 +206,7 @@ By default, anything you pass as `$sessionId` will be quoted and escaped (via `j
 
 The interface is quite self-explanatory and you are encouraged to familiarize yourself with it by looking at [ServiceInterface.php](https://github.com/lxrco/omnifraud-common/blob/master/src/Contracts/ServiceInterface.php). All methods are typehinted in both their arguments and returns.
 
-In order to communicate with all services in a consistent way, all implementations accept a [Request Object](https://github.com/lxrco/omnifraud-common/blob/master/src/Request/Request.php) throughout. The methods exposed by all services are:
+The methods exposed by all services are:
 
 * `public function validateRequest(Request $request): ResponseInterface;`
 * `public function updateRequest(Request $request): ResponseInterface;`
@@ -223,17 +217,100 @@ In order to communicate with all services in a consistent way, all implementatio
 
 ### Creating Requests
 
-#### Account
+In order to communicate with all services in a consistent way, all implementations accept a [`Request` object](https://github.com/lxrco/omnifraud-common/blob/master/src/Request/Request.php) throughout.
 
-#### Address
+Services may differ in which fields are considered optional and which are required, but **every service** can accept a completely filled request. It is recommended to always fill out the `Request` object for the initial `validateRequest` and let the driver decide what fields need keeping/discarding.
 
-#### Payment
+Requests are containers for the following plain-old-PHP objects:
+* [`Account`](https://github.com/lxrco/omnifraud-common/blob/master/src/Request/Data/Account.php)
+* [`Address`](https://github.com/lxrco/omnifraud-common/blob/master/src/Request/Data/Address.php) *(used for both shipping and billing)*
+* [`Payment`](https://github.com/lxrco/omnifraud-common/blob/master/src/Request/Data/Payment.php)
+* [`Product`](https://github.com/lxrco/omnifraud-common/blob/master/src/Request/Data/Product.php)
+* [`Purchase`](https://github.com/lxrco/omnifraud-common/blob/master/src/Request/Data/Purchase.php)
+* [`Session`](https://github.com/lxrco/omnifraud-common/blob/master/src/Request/Data/Session.php)
 
-#### Product
+A complete `Request` would look similar to this:
 
-#### Purchase
+```php
+<?php
+use Omnifraud\Request\Request;
+use Omnifraud\Request\Data\Account;
+use Omnifraud\Request\Data\Address;
+use Omnifraud\Request\Data\Payment;
+use Omnifraud\Request\Data\Product;
+use Omnifraud\Request\Data\Purchase;
+use Omnifraud\Request\Data\Session;
 
-#### Session
+$request = new Request();
+
+$purchase = new Purchase();
+$purchase->setId('1'); // Unique identifier for this sale
+$purchase->setCreatedAt(new \DateTime('2017-09-02 12:12:12')); // Date the order was created at
+$purchase->setCurrencyCode('CAD'); // ISO 4217 currency code
+$purchase->setTotal(56025); // Total amount of the purchase, NO DECIMAL POINT.
+$request->setPurchase($purchase);
+
+$product1 = new Product();
+$product1->setSku('SKU1'); // Product unique identifier
+$product1->setName('Product number 1'); // Product name
+$product1->setUrl('http://www.example.com/product-1'); // Product page
+$product1->setImage('http://www.example.com/product-1/cover.jpg'); // Image of the product
+$product1->setQuantity(1); // Quantity purchased
+$product1->setPrice(6025); // Price of the product, NO DECIMAL POINT.
+$product1->setWeight(100); // Weight in grams
+$product1->setIsDigital(false); // Is this a digital product
+$product1->setCategory('Category1'); // Category name
+$product1->setSubCategory('Sub Category 1'); // Sub category name
+$purchase->addProduct($product1);
+
+$payment = new Payment();
+$payment->setBin(457173); // First six numbers of the card
+$payment->setLast4('9000'); // Last four numbers of the card
+$payment->setExpiryMonth(9); // Expiration month 1-12
+$payment->setExpiryYear(2020); // Expiration year
+$payment->setAvs('Y'); // AVS response code, see http://www.emsecommerce.net/avs_cvv2_response_codes.htm
+$payment->setCvv('M'); // CVV response code, see http://www.emsecommerce.net/avs_cvv2_response_codes.htm
+$request->setPayment($payment);
+
+$account = new Account(); // Customer account
+$account->setId('ACCOUNT_ID'); // Account identifier
+$account->setUsername('username'); // Username
+$account->setEmail('test@example.com'); // Email address
+$account->setPhone('1234567890'); // Phone number
+$account->setCreatedAt(new \DateTime('2017-01-01 01:01:01')); // Account creation date
+$account->setUpdatedAt(new \DateTime('2017-05-12 02:02:02')); // Account last edition date
+$account->setLastOrderId('LAST_ORDER_ID'); // Previous sale identifier
+$account->setTotalOrderCount(5); // Total number of orders made by this customer in the past
+$account->setTotalOrderAmount(128700); // Total amount purchased by this customer, NO DECIMAL POINT.
+$request->setAccount($account);
+
+$session = new Session();
+$session->setIp('1.2.3.4'); // Browser IP address
+$session->setId('SESSION_ID'); // Session ID (same that was passed to the frontend code
+$request->setSession($session);
+
+$shippingAddress = new Address();
+$shippingAddress->setFullName('John Shipping'); // Shipping name
+$shippingAddress->setStreetAddress('1 shipping street');
+$shippingAddress->setUnit('25');
+$shippingAddress->setCity('Shipping Town');
+$shippingAddress->setState('Shipping State');
+$shippingAddress->setPostalCode('12345');
+$shippingAddress->setCountryCode('US'); // ISO Alpha-2 country code
+$shippingAddress->setPhone('1234567891'); // Use as main phone number
+$request->setShippingAddress($shippingAddress);
+
+$billingAddress = new Address();
+$billingAddress->setFullName('John Billing'); // Name on the card
+$billingAddress->setStreetAddress('1 billing street');
+$billingAddress->setUnit('1A');
+$billingAddress->setCity('Billing Town');
+$billingAddress->setState('Billing State');
+$billingAddress->setPostalCode('54321');
+$billingAddress->setCountryCode('CA'); // ISO Alpha-2 country code
+$billingAddress->setPhone('0987654321');
+$request->setBillingAddress($billingAddress);
+```
 
 #### Static Creation
 
