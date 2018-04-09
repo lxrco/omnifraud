@@ -19,7 +19,7 @@ Omnifraud is an ecommerce fraud prevention library for PHP. The project aims to 
     - [Service Methods](#service-methods)
     - [Front-end Implementation](#front-end-implementation)
     - [Creating Requests](#creating-requests)
-        - [Static Creation](#static-creation)
+        - [Alternative](#alternative)
     - [Responses](#responses)
         - [Asynchronous Responses](#asynchronous-responses)
 - [Contributing](#contributing)
@@ -312,9 +312,51 @@ $billingAddress->setPhone('0987654321');
 $request->setBillingAddress($billingAddress);
 ```
 
-#### Static Creation
+#### Alternative
 
-**TODO**: Request::create([]) or new Request([]);
+If you're not a fan of creating all the objects necessary for a `Request` yourself, you can simply pass everything as a multidimensional array through the constructor of `Request`.
+
+```php
+<?php
+use Omnifraud\Request\Request;
+
+$request = new Request([
+    'session' => [
+        'id' => 'ABC123',
+        'ip' => '127.0.0.1',
+    ],
+    'purchase' => [
+        'id' => 1,
+        'createdAt' => new \DateTime('2017-09-02 12:12:12'),
+        // ...
+    ],
+    // "products" is an array of products
+    'products' => [
+        [
+            'sku' => 'SKU1',
+            'url' => 'http://www.example.com/product-1',
+            'price' => 6025,
+            'category' => 'Shoes',
+            // ...
+        ],
+        [
+            'sku' => 'SKU99',
+            'url' => 'http://www.example.com/product-99',
+            'price' => 2050,
+            'category' => 'Hats',
+            // ...
+        ],
+    ],
+    'payment' => [
+        'bin' => '457173',
+        'last4' => '9000',
+        'avs' => 'Y',
+        'cvv' => 'M',
+        // ...
+    ],
+    // ...
+]);
+```
 
 ### Responses
 
