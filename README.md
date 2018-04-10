@@ -140,8 +140,10 @@ It's entirely up to you to generate a session ID and re-use the same one through
 * is alphanumeric
 * is of reasonable length (more than 255 might be overkill)
 * has some uniqueness properties (tip: don't do things like `crc32(time())`)
+* does not change between page loads
+* is shared between client/server
 
-Once you have your random session ID, toss it into a cookie (or custom header, however you want to communicate it) and use it for both the front-end tracker and the back-end fraud requests.
+Once you have your random session ID, toss it into a cookie and use it for both the front-end tracker and the back-end fraud requests.
 
 ### Instantiation
 
@@ -181,6 +183,10 @@ As every driver is an implementation of `Omnifraud\Contracts\ServiceInterface`, 
 
 All services expose a `trackingCode(string $pageType, string $sessionId)` method which returns a stringified snippet of JavaScript. You can call this method to insert the code necessary to instrument the front-end tracking of your fraud service. The two required parameters are a constant to specify the type of page we're inserting the snippet into, and the clients [session ID](#the-session-id).
 
+```php
+<?= $fraudService->trackingCode(ServiceInterface::PAGE_CHECKOUT, $request->cookies->get('session_id')); ?>
+```
+
 Be sure to pass the appropriate constant as some services will differentiate between the two types of pages. It can be one of these two values:
 
 * `ServiceInterface::PAGE_ALL`
@@ -199,7 +205,7 @@ Quite simply, the return string is an IIFE including the session ID. To help cla
 })();
 ```
 
-By default, anything you pass as `$sessionId` will be quoted and escaped (via `json_encode`). If you wish to pass raw JS (i.e. a variable name, global function, etc.), take advantage of the third, optional `bool $quote = true` parameter of `trackingCode`.
+By default, anything you pass as `$sessionId` will be quoted and escaped (via `json_encode`). If you wish to pass raw JS (i.e. a variable name, global function, etc.), take advantage of the third, optional `bool $quote` parameter of `trackingCode` by setting it to false.
 
 ### Services Methods
 
@@ -368,8 +374,12 @@ The [`Response` interface](https://github.com/lxrco/omnifraud-common/blob/master
 
 #### Asynchronous Responses
 
-When you get a response that's pending (`isPending() === true` above), you're not yet capable of retrieving it's score and guarantee. In this case you should make note of the request UID, dispatch a background job, and try updating it again at a later date.
+When you get a response that's pending (`isPending() === true` above), you're not yet capable of retrieving it's score and guarantee. In this case you should make note of the request UID and try fetching the status again later.
+
+For example, you could dispatch a background job with the order ID and request ID, and try updating it again at a later date.
 
 ```php
-$this->dispatchForLaterUpdate($response->getRequestUid());
+if ($response->isPending()) {
+    $this->dispatchForLaterUpdate($response->getRequestUid(), $order->id);
+}
 ```
