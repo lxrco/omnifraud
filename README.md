@@ -1,23 +1,74 @@
-# Omnifraud
+<img src="icon.png" align="right">
 
-**An easy to use, consistent fraud prevention processing library for PHP 7.1+**
+# Omnifraud · [![Travis Build Status](https://img.shields.io/travis/lxrco/omnifraud-common.svg)](https://travis-ci.org/lxrco/omnifraud-common) [![Packagist Version](https://img.shields.io/packagist/v/omnifraud/common.svg)](https://packagist.org/packages/omnifraud/common) [![Packagist Downloads](https://img.shields.io/packagist/dt/omnifraud/common.svg)](https://packagist.org/packages/omnifraud/common) [![License Version](https://img.shields.io/packagist/l/omnifraud/common.svg)](https://github.com/lxrco/omnifraud-common/blob/master/LICENSE)
 
-Inspired by [Omnipay](https://github.com/thephpleague/omnipay), Omnifraud is an fraud prevention library for PHP. It aims at providing a clear and consistent API for interacting with different fraud prevention service.
+> An easy to use, consistent fraud prevention library for **PHP 7.1+**. Inspired by [Omnipay](https://github.com/thephpleague/omnipay).
 
-## TL;DR
+Omnifraud is an ecommerce fraud prevention library for PHP. The project aims to provide a clear and consistent API for interacting with different fraud prevention, risk assessment, and liability shifting services.
 
-Here is a basic example
+## Table of Contents
+
+- [Motivation](#motivation)
+- [Installation](#installation)
+- [Basic Example](#basic-example)
+- [Fraud Services / Drivers](#fraud-services--drivers)
+    - [The `Null` Driver](#the-null-driver)
+- [Usage](#usage)
+    - [The Session ID](#the-session-id)
+    - [Instantiation](#instantiation)
+    - [Service Methods](#service-methods)
+    - [Front-end Implementation](#front-end-implementation)
+    - [Creating Requests](#creating-requests)
+        - [Alternative](#alternative)
+    - [Responses](#responses)
+        - [Asynchronous Responses](#asynchronous-responses)
+
+## Motivation
+
+There are a lot of risk assessment services out there and, although some details differ, the flow is almost always the same.
+
+* Generate a random session ID
+* Insert JavaScript tracking code into front end with aforementioned session ID
+* On checkout, send a request to risk assessment service with session ID and order information
+
+We created Omnifraud to satiate our own needs. The benefits of using the Omnifraud library are:
+
+* Learn one interface, use throughout projects with different providers.
+* Clean separation. Easily swap providers without touching a single line of checkout code.
+* Documentation in popular risk assessment services isn't always clear. Put in your API key and go.
+
+## Installation
+
+Usually all you'll need to do is install the service you need. For example:
+
+```bash
+composer require omnifraud/signifyd
+```
+
+Each package already requires [`omnifraud/common`](https://github.com/lxrco/omnifraud-common),
+so you don't need to require it.
+
+To install **ALL** supported services:
+
+```bash
+composer require omnifraud/omnifraud
+```
+
+## Basic Example
 
 ```php
 <?php
 
+use Omnifraud\Omnifraud;
+
 /** @var \Omnifraud\Contracts\ServiceInterface $fraudService */
-$fraudService = new Omnifraud\Example\ExampleService([
-    'api_key' => 'XXX', // Service specific config
+$fraudService = Omnifraud::create('Signifyd', [
+    'api_key' => 'XXX',
 ]);
 
 // Build request, with data from the current sale
 $request = new Omnifraud\Request\Request();
+
 $request->getPurchase()->setId('1');
 $request->getPurchase()->setTotal(25100);
 $request->getPurchase()->setCurrencyCode('CAD');
@@ -30,89 +81,170 @@ $response = $fraudService->validateRequest($request);
 
 // Does it need to be updated later?
 if ($response->isPending()) {
+    // Queue for later update
     $this->queueFraudUpdate($response->getRequestUid());
-    return;
 }
 
 if ($response->isGuaranteed()) {
-    // This looks super safe, auto approve it maybe?
-    //...
+    // The order is guaranteed by our fraud service
+    // ...
 }
 
 if ($response->getScore() < 10.0) {
-    // This looks really suspicious, maybe auto refuse?
-    //...
+    // That's a pretty bad score. Let's bail!
+    // ...
 }
-
-foreach ($response->getMessages() as $message) {
-    if ($message->getType() !== \Omnifraud\Contracts\MessageInterface::TYPE_INFO) {
-        $this->saveOrderMessage($message->getType(), $message->getMessage());
-    }
-}
-
 ```
-Note: See [MakesTestRequest@makeTestRequest()](https://github.com/lxrco/omnifraud-common/blob/master/src/Testing/MakesTestRequests.php) for a full example of a request, each service might require different fields but they can all handle a full request.
+> *Note: See [MakesTestRequest@makeTestRequest()](https://github.com/lxrco/omnifraud-common/blob/master/src/Testing/MakesTestRequests.php) for a full example of a request. Services may differ in which fields are optional and which are required, but every service can handle a completely full request.*
 
-## Installation
+## Fraud Services / Drivers
 
-Usually all you need to do is installing the service you need, for example:
-```bash
-composer require omnifraud/signifyd
-```
-
-Each package already requires [`omnifraud/common`](https://github.com/lxrco/omnifraud-common),
-so you don't need to require it.
-
-You can also install ALL supported services:
-
-```bash
-composer require omnifraud/omnifraud
-```
-
-
-## Fraud services
-
-All drivers must implement [ServiceInterface](https://github.com/lxrco/omnifraud-common/blob/master/src/Contracts/ServiceInterface.php).
+All drivers implement [ServiceInterface](https://github.com/lxrco/omnifraud-common/blob/master/src/Contracts/ServiceInterface.php).
 
 The following services are officially supported right now:
 
-Service | Composer Package | Maintainer
---- | --- | ---
-[Kount](https://github.com/lxrco/omnifraud-kount) | omnifraud/kount | [LXRandCo](https://github.com/lxrco)
-[Signifyd](https://github.com/lxrco/omnifraud-signifyd) | omnifraud/signifyd | [LXRandCo](https://github.com/lxrco)
+Service | Composer Package | Alias | Maintainer
+--- | --- | --- | ---
+[Kount](https://github.com/lxrco/omnifraud-kount) | omnifraud/kount | Kount | [LXRandCo](https://github.com/lxrco)
+[Signifyd](https://github.com/lxrco/omnifraud-signifyd) | omnifraud/signifyd | Signifyd | [LXRandCo](https://github.com/lxrco)
+[Null](https://github.com/lxrco/omnifraud-common) | omnifraud/common | Null | [LXRandCo](https://github.com/lxrco)
 
+> *Note: Interested in contributing your own implementation? We'd love to include it! Add it to the above list and send a PR.*
 
-## Service methods
+### The `Null` Driver
 
-* `trackingCode` - get the frontend code use to track users pre-purchase
-* `validateRequest` - submit a fraud review request, typically after an order passed payment validation
-* `updateRequest` - update a fraud review to get the updated information 
-* `getRequestExternalLink` - get a link to view the fraud review in a browser
-* `logRefusedRequest` - log a refused request with the fraud prevention service
-* `cancelRequest` - cancel a previous fraud review request
+The `Null` driver does nothing. What else were you expecting?
 
-## The fraud review Request
+## Usage
 
-In order to communicate with services in a consistent way, all services accept a [Request](https://github.com/lxrco/omnifraud-common/blob/master/src/Request/Request.php) object for `validateRequest` and `updateRequest`.
+The lifecycle of the fraud request looks like this:
 
-The request is mostly a container for the following objects (with the exception of the request ID):
-[Account](https://github.com/lxrco/omnifraud-common/blob/master/src/Request/Account.php),
-[Address](https://github.com/lxrco/omnifraud-common/blob/master/src/Request/Address.php) *(used for both shipping and billing)*,
-[Payment](https://github.com/lxrco/omnifraud-common/blob/master/src/Request/Payment.php),
-[Product](https://github.com/lxrco/omnifraud-common/blob/master/src/Request/Product.php),
-[Purchase](https://github.com/lxrco/omnifraud-common/blob/master/src/Request/Purchase.php),
-[Session](https://github.com/lxrco/omnifraud-common/blob/master/src/Request/Session.php)
+1. User visits www.example.com
+2. User is assigned a random session ID or reuses existing session ID (via local storage, cookies, etc.)
+3. User attempts checkout with payment
+4. Both failed and successful payments are reported to fraud service
+5. Once checkout succeeds, a score is given to the fraud request (either synchronously or asynchronously) and is saved alongside the order
 
-Here is a full commented example of building a request:
+In order of implementation, this translates into:
+
+1. Instantiation of a driver
+2. Front-end JavaScript implementation
+3. Creation of a fraud "request"
+4. On checkout, recording *order*, *session*, *account*, and *payment* info in the request
+5. Storing the response and fraud score in the database, or queuing for later retrieval if asynchronous
+
+### The Session ID
+
+It's entirely up to you to generate a session ID and re-use the same one throughout the aforementioned fraud request lifecycle. Most services have no opinion on what it looks like, but to be safe accross most vendors you should ensure it:
+
+* is alphanumeric
+* is of reasonable length (more than 255 might be overkill)
+* has some uniqueness properties (tip: don't do things like `crc32(time())`)
+* does not change between page loads
+* is shared between client/server
+
+Once you have your random session ID, toss it into a cookie and use it for both the front-end tracker and the back-end fraud requests.
+
+### Instantiation
+
+Instantiation of a driver is incredibly straightforward.
+
+You can create them yourself, passing all configs necessary as the first and only constructor argument.
+
 ```php
 <?php
+
+use Omnifraud\Kount\KountService;
+
+/** @var \Omnifraud\Contracts\ServiceInterface $fraudService */
+$fraudService = new KountService([
+    'apiKey' => 'XXX',
+    'merchantId' => '123456',
+]);
+```
+
+Or, use the static `create()` method offered by `Omnifraud\Omnifraud`. The first parameter is the **alias** of the driver (detailed in the [table above](#fraud-services--drivers)), and the second is the same configuration array you would normally supply.
+
+```php
+<?php
+
+use Omnifraud\Omnifraud;
+
+/** @var \Omnifraud\Contracts\ServiceInterface $fraudService */
+$fraudService = Omnifraud::create('Kount', [
+    'apiKey' => 'XXX',
+    'merchantId' => '123456',
+]);
+```
+
+As every driver is an implementation of `Omnifraud\Contracts\ServiceInterface`, you should be careful to ensure that you typehint this contract instead of any concrete implementations. Doing anything else would defeat the purpose of this library.
+
+### Front-end Implementation
+
+All services expose a `trackingCode(string $pageType, string $sessionId)` method which returns a stringified snippet of JavaScript. You can call this method to insert the code necessary to instrument the front-end tracking of your fraud service. The two required parameters are a constant to specify the type of page we're inserting the snippet into, and the clients [session ID](#the-session-id).
+
+```php
+<?= $fraudService->trackingCode(ServiceInterface::PAGE_CHECKOUT, $request->cookies->get('session_id')); ?>
+```
+
+Be sure to pass the appropriate constant as some services will differentiate between the two types of pages. It can be one of these two values:
+
+* `ServiceInterface::PAGE_ALL`
+* `ServiceInterface::PAGE_CHECKOUT`
+
+Quite simply, the return string is an IIFE including the session ID. To help clarify how this works let's take a peak at the `SignifydService`. Its `trackingCode()` method will return the following JavaScript snippet:
+
+```javascript
+(function() {
+    var script = document.createElement('script');
+    script.setAttribute('src', 'https://cdn-scripts.signifyd.com/api/script-tag.js');
+    script.setAttribute('data-order-session-id', {{ $sessionId }});
+    script.setAttribute('id', 'sig-api');
+
+    document.body.appendChild(script);
+})();
+```
+
+By default, anything you pass as `$sessionId` will be quoted and escaped (via `json_encode`). If you wish to pass raw JS (i.e. a variable name, global function, etc.), take advantage of the third, optional `bool $quote` parameter of `trackingCode` by setting it to false.
+
+### Services Methods
+
+The interface is quite self-explanatory and you are encouraged to familiarize yourself with it by looking at [ServiceInterface.php](https://github.com/lxrco/omnifraud-common/blob/master/src/Contracts/ServiceInterface.php). All methods are typehinted in both their arguments and returns.
+
+The methods exposed by all services are:
+
+* `public function validateRequest(Request $request): ResponseInterface;`
+* `public function updateRequest(Request $request): ResponseInterface;`
+* `public function cancelRequest(Request $request): void;`
+* `public function logRefusedPayment(Request $request): void;`
+* `public function getRequestExternalLink(string $requestUid): ?string;`
+* `public function trackingCode(string $pageType, string $sessionId, bool $quote = true): string;`
+
+### Creating Requests
+
+In order to communicate with all services in a consistent way, all implementations accept a [`Request` object](https://github.com/lxrco/omnifraud-common/blob/master/src/Request/Request.php) throughout.
+
+Services may differ in which fields are considered optional and which are required, but **every service** can accept a completely filled request. It is recommended to always fill out the `Request` object for the initial `validateRequest` and let the driver decide what fields need keeping/discarding.
+
+Requests are containers for the following plain-old-PHP objects:
+* [`Account`](https://github.com/lxrco/omnifraud-common/blob/master/src/Request/Data/Account.php)
+* [`Address`](https://github.com/lxrco/omnifraud-common/blob/master/src/Request/Data/Address.php) *(used for both shipping and billing)*
+* [`Payment`](https://github.com/lxrco/omnifraud-common/blob/master/src/Request/Data/Payment.php)
+* [`Product`](https://github.com/lxrco/omnifraud-common/blob/master/src/Request/Data/Product.php)
+* [`Purchase`](https://github.com/lxrco/omnifraud-common/blob/master/src/Request/Data/Purchase.php)
+* [`Session`](https://github.com/lxrco/omnifraud-common/blob/master/src/Request/Data/Session.php)
+
+A complete `Request` would look similar to this:
+
+```php
+<?php
+use Omnifraud\Request\Request;
 use Omnifraud\Request\Data\Account;
 use Omnifraud\Request\Data\Address;
 use Omnifraud\Request\Data\Payment;
 use Omnifraud\Request\Data\Product;
 use Omnifraud\Request\Data\Purchase;
 use Omnifraud\Request\Data\Session;
-use Omnifraud\Request\Request;
 
 $request = new Request();
 
@@ -185,41 +317,69 @@ $billingAddress->setPhone('0987654321');
 $request->setBillingAddress($billingAddress);
 ```
 
-## Frontend code
+#### Alternative
 
-Currently implemented services all require a session id to be passed to the frontend code,
-this is done by calling the function defined by the service.
+If you're not a fan of creating all the objects necessary for a `Request` yourself, you can simply pass everything as a multidimensional array through the constructor of `Request`.
 
-Note: The `trackingCode` needs to be called with a page constent,
-either `ServiceInterface::PAGE_ALL` or `ServiceInterface::PAGE_CHECKOUT` as some services require
-different code for the checkout page.
+```php
+<?php
+use Omnifraud\Request\Request;
 
-```javascript
-// Example function to generate session IDs on the frontend and store it in a cookie,
-// the ID could also come from the backend.
-function getSessionId() {
-    var sessionId = Cookies.get('sessionId');
-    if(!sessionId) {
-        sessionId = '';
-        var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        
-        for (var i = 0; i < 32; i++) {
-            sessionId += possible.charAt(Math.floor(Math.random() * possible.length));
-        }
-        Cookies.set('sessionId', sessionId);
-    }
-    return sessionId;
-}
+$request = new Request([
+    'session' => [
+        'id' => 'ABC123',
+        'ip' => '127.0.0.1',
+    ],
+    'purchase' => [
+        'id' => 1,
+        'createdAt' => new \DateTime('2017-09-02 12:12:12'),
+        // ...
+    ],
+    // "products" is an array of products
+    'products' => [
+        [
+            'sku' => 'SKU1',
+            'url' => 'http://www.example.com/product-1',
+            'price' => 6025,
+            'category' => 'Shoes',
+            // ...
+        ],
+        [
+            'sku' => 'SKU99',
+            'url' => 'http://www.example.com/product-99',
+            'price' => 2050,
+            'category' => 'Hats',
+            // ...
+        ],
+    ],
+    'payment' => [
+        'bin' => '457173',
+        'last4' => '9000',
+        'avs' => 'Y',
+        'cvv' => 'M',
+        // ...
+    ],
+    // ...
+]);
+```
 
-// Must be defined before adding the trackingCodes
-var trackingCodes = [];
+### Responses
 
-// Inject one or more service's tracking code
-<?= $fraudService->trackingCode(ServiceInterface::PAGE_ALL); ?>
+The [`Response` interface](https://github.com/lxrco/omnifraud-common/blob/master/src/Contracts/ResponseInterface.php) exposes a few concise methods.
 
-// Call the functions with the code
-for(var i in trackingCodes) {
-    if(!trackingCodes.hasOwnProperty(i)) continue;
-    trackingCodes[i](getSessionId());
+* `public function getRequestUid(): string;` - the UID generated by the service for this request. Useful for future updates (see async responses below), cancellations, and generating URLs to the web-view of this fraud request
+* `public function isPending(): bool;` - whether or not this response contains a ready response. Some services will require extra time to manually review a request before giving a score + guarantee.
+* `public function getScore(): ?float;` - if not pending, will contain a score from 0 to 100 (0 = worst, 100 = best)
+* `public function isGuaranteed(): bool;` - if supported by the service, determines whether or not the liability for this order can be shifted to the service. Typically called "Chargeback guarantee".
+
+#### Asynchronous Responses
+
+When you get a response that's pending (`isPending() === true` above), you're not yet capable of retrieving it's score and guarantee. In this case you should make note of the request UID and try fetching the status again later.
+
+For example, you could dispatch a background job with the order ID and request ID, and try updating it again at a later date.
+
+```php
+if ($response->isPending()) {
+    $this->dispatchForLaterUpdate($response->getRequestUid(), $order->id);
 }
 ```
