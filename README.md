@@ -184,7 +184,9 @@ As every driver is an implementation of `Omnifraud\Contracts\ServiceInterface`, 
 All services expose a `trackingCode(string $pageType, string $sessionId)` method which returns a stringified snippet of JavaScript. You can call this method to insert the code necessary to instrument the front-end tracking of your fraud service. The two required parameters are a constant to specify the type of page we're inserting the snippet into, and the clients [session ID](#the-session-id).
 
 ```php
+<script>
 <?= $fraudService->trackingCode(ServiceInterface::PAGE_CHECKOUT, $request->cookies->get('session_id')); ?>
+</script>
 ```
 
 Be sure to pass the appropriate constant as some services will differentiate between the two types of pages. It can be one of these two values:
@@ -195,15 +197,16 @@ Be sure to pass the appropriate constant as some services will differentiate bet
 Quite simply, the return string is an IIFE including the session ID. To help clarify how this works let's take a peak at the `SignifydService`. Its `trackingCode()` method will return the following JavaScript snippet:
 
 ```javascript
-(function() {
+(function(sid) {
     var script = document.createElement('script');
     script.setAttribute('src', 'https://cdn-scripts.signifyd.com/api/script-tag.js');
-    script.setAttribute('data-order-session-id', {{ $sessionId }});
+    script.setAttribute('data-order-session-id', sid);
     script.setAttribute('id', 'sig-api');
 
     document.body.appendChild(script);
-})();
+})("{{ $sessionId }}");
 ```
+Note: `{{ $sessionId }}` will be replaced with the sessionId Argument.
 
 By default, anything you pass as `$sessionId` will be quoted and escaped (via `json_encode`). If you wish to pass raw JS (i.e. a variable name, global function, etc.), take advantage of the third, optional `bool $quote` parameter of `trackingCode` by setting it to false.
 
